@@ -35,10 +35,14 @@
     width: 100%;
 }
 
-/* Button styling */
+.button.stop {
+    background-color: #DC3545;  /* Red background for stop button */
+}
+
+/* Modify the existing button styling if needed */
 .button {
     padding: 12px 20px;
-    background-color: #007BFF;
+    background-color: #007BFF;  /* Blue background for start button */
     color: #fff;
     border: none;
     border-radius: 5px;

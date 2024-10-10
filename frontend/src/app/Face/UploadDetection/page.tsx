@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import axios from 'axios';
-import './styles.css';  // Make sure this path is correct
+import '../styles.css';  // Adjust the path to import styles correctly
 
-const Face = () => {
+const UploadDetection = () => {
     const [file, setFile] = useState<File | null>(null);
     const [emotion, setEmotion] = useState<string>("");
     const [isUploading, setIsUploading] = useState(false);
@@ -41,7 +41,7 @@ const Face = () => {
 
     return (
         <div className="container">
-            <h1 className="title">Real-Time Emotion Detection</h1>
+            <h1 className="title">Emotion Detection (Upload)</h1>
 
             <div className="card">
                 <input type="file" onChange={handleFileChange} className="fileInput" />
@@ -63,4 +63,4 @@ const Face = () => {
     );
 };
 
-export default Face;
+export default UploadDetection;

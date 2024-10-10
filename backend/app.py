@@ -1,8 +1,9 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, WebSocket
 import cv2
 import numpy as np
 from deepface import DeepFace
 from fastapi.middleware.cors import CORSMiddleware
+from websocket_handler import websocket_endpoint
 
 app = FastAPI()
 
@@ -45,6 +46,11 @@ async def recognize_image(file: UploadFile = File(...)):
         return {"error": str(e)}
 
     return {"emotion": mapped_emotion}
+
+# WebSocket route (unindented)
+@app.websocket("/ws")
+async def websocket_route(websocket: WebSocket):
+    await websocket_endpoint(websocket)
 
 if __name__ == "__main__":
     import uvicorn
