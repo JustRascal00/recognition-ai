@@ -1,0 +1,12 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ignore the backend __pycache__ specifically
+backend/__pycache__/
+
+# Other files and folders to ignore
+*.env
+*.db
+*.log
