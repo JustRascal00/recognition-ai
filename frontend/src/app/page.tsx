@@ -1,10 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';  // Use Next.js router for navigation
-import './Face/styles.css';  // Import styles for consistent design
+import { useRouter } from 'next/navigation';
+import './Face/styles.css';
 
 const Home = () => {
-    const router = useRouter();  // Initialize router to navigate between pages
+    const router = useRouter();
 
     return (
         <div className="container">
@@ -12,10 +12,13 @@ const Home = () => {
 
             <div className="card">
                 <button onClick={() => router.push('/Face/UploadDetection')} className="button">
-                    Upload Emotion Detection
+                    Upload Image Detection
                 </button>
-                <button onClick={() => router.push('/Face/LiveStreamDetection')} className="button">
-                    Live Stream Emotion Detection
+                {/* <button onClick={() => router.push('/Face/LiveStreamDetection')} className="button">
+                    Live Stream Detection
+                </button> */}
+                <button onClick={() => router.push('/Face/VideoProcessing')} className="button">
+                    Video Emotion Detection
                 </button>
             </div>
         </div>

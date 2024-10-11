@@ -1,83 +1,65 @@
-/* Container for the entire app */
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #f5f7fa;
-    font-family: 'Arial, sans-serif';
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-/* Title styling */
 .title {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-/* Card container */
-.card {
-    background-color: #fff;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     text-align: center;
-    width: 400px;
+    margin-bottom: 30px;
 }
 
-/* File input styling */
+.card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .fileInput {
     margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
     width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
-.button.stop {
-    background-color: #DC3545;  /* Red background for stop button */
-}
-
-/* Modify the existing button styling if needed */
 .button {
-    padding: 12px 20px;
-    background-color: #007BFF;  /* Blue background for start button */
-    color: #fff;
+    background-color: #0070f3;
+    color: white;
     border: none;
-    border-radius: 5px;
+    padding: 10px 20px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 16px;
     width: 100%;
+}
+
+.button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.error {
+    color: red;
     margin-top: 10px;
+    text-align: center;
 }
 
-/* Loading spinner styling */
-.spinner {
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 4px solid #fff;
-    width: 24px;
-    height: 24px;
-    animation: spin 1s linear infinite;
-}
-
-/* Result container styling */
-.result {
+.videoContainer {
     margin-top: 20px;
-    padding: 10px;
-    background-color: #E8F0FE;
-    border-radius: 5px;
 }
 
-/* Result text styling */
-.resultText {
-    font-size: 1.2rem;
-    color: #333;
+.processedVideo {
+    max-width: 100%;
+    height: auto;  /* Maintain aspect ratio */
 }
 
-/* Spinner animation */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.downloadButton {
+    margin-top: 10px;
+    background-color: #28a745;
+}
+
+.downloadButton:hover {
+    background-color: #218838;
 }

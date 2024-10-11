@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import axios from 'axios';
-import '../styles.css';  // Adjust the path to import styles correctly
 
 const UploadDetection = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -40,24 +39,38 @@ const UploadDetection = () => {
     };
 
     return (
-        <div className="container">
-            <h1 className="title">Emotion Detection (Upload)</h1>
+        <div className="min-h-screen bg-zinc-900 text-zinc-100 p-4">
+            <div className="max-w-3xl mx-auto">
+                <h1 className="text-3xl font-bold mb-8 text-center">Emotion Detection (Upload)</h1>
 
-            <div className="card">
-                <input type="file" onChange={handleFileChange} className="fileInput" />
-                <button onClick={handleUpload} className="button" disabled={isUploading}>
-                    {isUploading ? (
-                        <div className="spinner"></div>
-                    ) : (
-                        'Upload & Detect Emotion'
+                <div className="bg-black p-6 rounded-lg shadow-lg">
+                    <input 
+                        type="file" 
+                        onChange={handleFileChange} 
+                        className="w-full mb-4 p-2 bg-zinc-800 rounded border border-zinc-700 text-zinc-100"
+                    />
+                    <button 
+                        onClick={handleUpload} 
+                        className="w-full bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out disabled:bg-zinc-500 disabled:cursor-not-allowed"
+                        disabled={isUploading || !file}
+                    >
+                        {isUploading ? (
+                            <div className="flex justify-center items-center">
+                                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-zinc-100 mr-2"></div>
+                                Uploading...
+                            </div>
+                        ) : (
+                            'Upload & Detect Emotion'
+                        )}
+                    </button>
+
+                    {emotion && (
+                        <div className="mt-6 p-4 bg-zinc-800 rounded-lg">
+                            <h2 className="text-xl font-semibold mb-2">Detected Emotion:</h2>
+                            <p className="text-2xl font-bold text-green-400">{emotion}</p>
+                        </div>
                     )}
-                </button>
-
-                {emotion && (
-                    <div className="result">
-                        <h2 className="resultText">Detected Emotion: {emotion}</h2>
-                    </div>
-                )}
+                </div>
             </div>
         </div>
     );
