@@ -1,14 +1,15 @@
-from fastapi import FastAPI, File, UploadFile, WebSocket, Query
+from fastapi import FastAPI, File, UploadFile, WebSocket
 import cv2
 import numpy as np
 from deepface import DeepFace
 from fastapi.middleware.cors import CORSMiddleware
-from websocket_handler import websocket_endpoint
+from fastapi.responses import FileResponse
 from video_processor import VideoProcessor
+import io
+import os
 
 app = FastAPI()
 
-# Initialize VideoProcessor
 video_processor = VideoProcessor()
 
 app.add_middleware(
@@ -45,13 +46,31 @@ async def recognize_image(file: UploadFile = File(...)):
 
     return {"emotion": mapped_emotion}
 
-@app.post("/process-video/")
-async def process_video(file: UploadFile = File(...)):
-    return await video_processor.process_video(file)
-
 @app.websocket("/ws")
-async def websocket_route(websocket: WebSocket):
-    await websocket_endpoint(websocket)
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            if data == "start_processing":
+                file_data = await websocket.receive_bytes()
+                file = io.BytesIO(file_data)
+                upload_file = UploadFile(filename="video.mp4", file=file)
+                processed_video_path = await video_processor.process_video(upload_file, websocket)
+                
+                await websocket.send_text("processing_complete")
+                await websocket.send_text(processed_video_path)  # Send the file path
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+    finally:
+        await websocket.close()
+
+@app.get("/download_video/")
+async def download_video(video_path: str):
+    if os.path.exists(video_path):
+        return FileResponse(path=video_path, media_type="video/mp4", filename="processed_video.mp4")
+    else:
+        return {"error": "File not found"}
 
 @app.on_event("shutdown")
 async def cleanup():
