@@ -14,9 +14,9 @@ const Home = () => {
                 <button onClick={() => router.push('/Face/UploadDetection')} className="button">
                     Upload Image Detection
                 </button>
-                <button onClick={() => router.push('/Face/LiveStreamDetection')} className="button">
+                {/* <button onClick={() => router.push('/Face/LiveStreamDetection')} className="button">
                     Live Stream Detection
-                </button>
+                </button> */}
                 <button onClick={() => router.push('/Face/VideoProcessing')} className="button">
                     Video Emotion Detection
                 </button>

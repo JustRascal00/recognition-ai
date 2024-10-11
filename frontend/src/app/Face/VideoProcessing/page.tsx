@@ -23,8 +23,7 @@ export default function VideoProcessing() {
                 if (event.data === "processing_complete") {
                     setIsProcessing(false);
                 } else {
-                    // Assume this is the processed video path
-                    setProcessedVideoUrl(`http://localhost:8000/download_video/?video_path=${encodeURIComponent(event.data)}`);
+                    setProcessedVideoUrl(`http://localhost:8000${event.data}`);
                 }
             }
         };
@@ -70,62 +69,64 @@ export default function VideoProcessing() {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Video Emotion Detection</h1>
+        <div className="min-h-screen bg-zinc-900 text-zinc-100 p-4">
+            <div className="max-w-3xl mx-auto">
+                <h1 className="text-3xl font-bold mb-8 text-center">Video Emotion Detection</h1>
 
-            <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <input 
-                    type="file" 
-                    onChange={handleFileChange} 
-                    className="mb-4"
-                    accept="video/*"
-                />
-                
-                <button 
-                    onClick={handleUpload} 
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    disabled={isProcessing || !file}
-                >
-                    {isProcessing ? 'Processing Video...' : 'Process Video'}
-                </button>
+                <div className="bg-black p-6 rounded-lg shadow-lg">
+                    <input 
+                        type="file" 
+                        onChange={handleFileChange} 
+                        className="w-full mb-4 p-2 bg-zinc-800 rounded border border-zinc-700 text-zinc-100"
+                        accept="video/*"
+                    />
+                    
+                    <button 
+                        onClick={handleUpload} 
+                        className="w-full bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out disabled:bg-zinc-500 disabled:cursor-not-allowed"
+                        disabled={isProcessing || !file}
+                    >
+                        {isProcessing ? 'Processing Video...' : 'Process Video'}
+                    </button>
 
-                {isProcessing && (
-                    <div className="mt-4">
-                        <div className="bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                            <div 
-                                className="bg-blue-600 h-2.5 rounded-full" 
-                                style={{width: `${progress}%`}}
-                            ></div>
+                    {isProcessing && (
+                        <div className="mt-4">
+                            <div className="bg-zinc-700 rounded-full h-2.5">
+                                <div 
+                                    className="bg-green-500 h-2.5 rounded-full transition-all duration-300 ease-in-out"
+                                    style={{width: `${progress}%`}}
+                                ></div>
+                            </div>
+                            <p className="text-center mt-2">{progress.toFixed(2)}% Complete</p>
                         </div>
-                        <p className="text-center mt-2">{progress.toFixed(2)}% Complete</p>
-                    </div>
-                )}
+                    )}
 
-                {error && (
-                    <div className="text-red-500 mt-4">
-                        {error}
-                    </div>
-                )}
+                    {error && (
+                        <div className="mt-4 text-red-400 text-center">
+                            {error}
+                        </div>
+                    )}
 
-                {processedVideoUrl && (
-                    <div className="mt-4">
-                        <h2 className="text-xl font-bold mb-2">Processed Video:</h2>
-                        <video 
-                            controls 
-                            src={processedVideoUrl}
-                            className="w-full"
-                        >
-                            Your browser does not support the video tag.
-                        </video>
-                        <a 
-                            href={processedVideoUrl} 
-                            download="processed_video.mp4"
-                            className="mt-4 inline-block bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        >
-                            Download Processed Video
-                        </a>
-                    </div>
-                )}
+                    {processedVideoUrl && (
+                        <div className="mt-6">
+                            <h2 className="text-xl font-bold mb-4">Processed Video:</h2>
+                            <video 
+                                controls 
+                                src={processedVideoUrl}
+                                className="w-full rounded-lg"
+                            >
+                                Your browser does not support the video tag.
+                            </video>
+                            <a 
+                                href={processedVideoUrl} 
+                                download="processed_video.mp4"
+                                className="mt-4 inline-block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out text-center"
+                            >
+                                Download Processed Video
+                            </a>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
