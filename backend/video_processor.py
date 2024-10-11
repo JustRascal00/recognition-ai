@@ -5,6 +5,7 @@ from fastapi import UploadFile
 from fastapi.responses import FileResponse
 from pathlib import Path
 import os
+import sys
 
 class VideoProcessor:
     def __init__(self):
@@ -24,7 +25,7 @@ class VideoProcessor:
             buffer.write(content)
         
         try:
-            # Process the video
+            # Process the video with progress bar
             self._process_video_file(str(temp_input), str(temp_output))
             
             # Clean up input file
@@ -48,16 +49,14 @@ class VideoProcessor:
         cap = cv2.VideoCapture(input_path)
         
         # Get video properties
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         
-        # Create temporary AVI file first (for compatibility)
-        temp_avi = str(self.UPLOAD_DIR / "temp_output.avi")
-        
-        # Use XVID codec for temporary AVI
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter(temp_avi, fourcc, fps, (frame_width, frame_height))
+        # Save directly as MP4
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
         
         frame_count = 0
         while cap.isOpened():
@@ -66,49 +65,13 @@ class VideoProcessor:
                 break
                 
             frame_count += 1
-            # Process every 3rd frame to improve performance
-            if frame_count % 3 != 0:
-                continue
-                
-            try:
-                processed_frame = self._process_frame(frame)
-                out.write(processed_frame)
-            except Exception as e:
-                print(f"Error processing frame {frame_count}: {e}")
-                out.write(frame)  # Write original frame if processing fails
+            # Optionally, process every frame
+            processed_frame = self._process_frame(frame)
+            out.write(processed_frame)
+            
+            # Update the progress bar
+            self._update_progress_bar(frame_count, total_frames)
         
-        # Release everything
-        cap.release()
-        out.release()
-
-        # Convert AVI to MP4 using ffmpeg
-        try:
-            import ffmpeg
-            
-            # Use ffmpeg to convert to MP4 with H.264 codec
-            stream = ffmpeg.input(temp_avi)
-            stream = ffmpeg.output(stream, output_path, vcodec='libx264', acodec='aac')
-            ffmpeg.run(stream, overwrite_output=True)
-            
-            # Remove temporary AVI file
-            os.remove(temp_avi)
-        except ImportError:
-            print("ffmpeg-python not installed. Using alternative method...")
-            # If ffmpeg-python is not available, try using CV2's MP4V codec directly
-            self._convert_to_mp4(temp_avi, output_path, fps, frame_width, frame_height)
-            os.remove(temp_avi)
-
-    def _convert_to_mp4(self, input_path: str, output_path: str, fps: int, width: int, height: int):
-        cap = cv2.VideoCapture(input_path)
-        fourcc = cv2.VideoWriter_fourcc(*'avc1')  # Use H.264 codec
-        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-        
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
-            out.write(frame)
-            
         cap.release()
         out.release()
 
@@ -132,6 +95,11 @@ class VideoProcessor:
                        0.9, (36,255,12), 2)
         
         return frame
+
+    def _update_progress_bar(self, current_frame, total_frames):
+        progress = (current_frame / total_frames) * 100
+        sys.stdout.write(f"\rProcessing video... {progress:.2f}% completed")
+        sys.stdout.flush()
 
     def cleanup(self):
         # Clean up temporary files

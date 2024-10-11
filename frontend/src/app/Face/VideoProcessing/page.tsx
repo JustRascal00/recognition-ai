@@ -38,20 +38,19 @@ const VideoProcessing = () => {
 
         try {
             const response = await axios.post("http://localhost:8000/process-video/", formData, {
-                responseType: 'blob',
+                responseType: 'blob',  // Important to get the binary data
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-
-            // Create a URL for the processed video
+    
             const videoUrl = URL.createObjectURL(response.data);
-            setProcessedVideoUrl(videoUrl);
+            setProcessedVideoUrl(videoUrl); // Correctly set the video URL
         } catch (error) {
             console.error("Error processing video:", error);
             setError('Error processing video. Please try again.');
         } finally {
-            setIsProcessing(false);
+            setIsProcessing(false); // Make sure this is set back to false
         }
     };
 

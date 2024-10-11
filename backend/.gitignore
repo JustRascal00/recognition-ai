@@ -10,3 +10,6 @@ backend/__pycache__/
 *.env
 *.db
 *.log
+
+# Ignore temp videos directory
+backend/temp_videos/
