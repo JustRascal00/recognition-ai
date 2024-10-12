@@ -5,8 +5,10 @@ from deepface import DeepFace
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from video_processor import VideoProcessor
+from starlette.websockets import WebSocketDisconnect
 import io
 import os
+from pathlib import Path
 
 app = FastAPI()
 
@@ -49,26 +51,41 @@ async def recognize_image(file: UploadFile = File(...)):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    connection_open = True
     try:
         while True:
-            data = await websocket.receive_text()
-            if data == "start_processing":
-                file_data = await websocket.receive_bytes()
-                file = io.BytesIO(file_data)
-                upload_file = UploadFile(filename="video.mp4", file=file)
-                processed_video_path = await video_processor.process_video(upload_file, websocket)
-                
-                await websocket.send_text("processing_complete")
-                await websocket.send_text(processed_video_path)  # Send the file path
+            try:
+                data = await websocket.receive_text()
+                if data == "start_processing":
+                    file_data = await websocket.receive_bytes()
+                    file = io.BytesIO(file_data)
+                    upload_file = UploadFile(filename="video.mp4", file=file)
+                    processed_video_path = await video_processor.process_video(upload_file, websocket)
+                    
+                    await websocket.send_text("processing_complete")
+                    
+                    # Send the URL or link to download the video
+                    await websocket.send_text(f"/download/{Path(processed_video_path).name}")
+            except WebSocketDisconnect:
+                print("Client disconnected")
+                connection_open = False
+                break
     except Exception as e:
         print(f"WebSocket error: {e}")
+        if connection_open:
+            try:
+                await websocket.send_text(f"Error: {e}")
+            except WebSocketDisconnect:
+                print("Unable to send error message, client already disconnected.")
     finally:
-        await websocket.close()
+        if connection_open:
+            await websocket.close()
 
-@app.get("/download_video/")
-async def download_video(video_path: str):
-    if os.path.exists(video_path):
-        return FileResponse(path=video_path, media_type="video/mp4", filename="processed_video.mp4")
+@app.get("/download/{filename}")
+async def download_file(filename: str):
+    file_path = video_processor.UPLOAD_DIR / filename
+    if file_path.exists():
+        return FileResponse(path=file_path, filename=filename, media_type='application/octet-stream')
     else:
         return {"error": "File not found"}
 
