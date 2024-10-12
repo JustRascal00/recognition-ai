@@ -8,6 +8,11 @@ import os
 import json
 import tempfile
 import shutil
+from collections import deque
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class VideoProcessor:
     def __init__(self):
@@ -15,24 +20,23 @@ class VideoProcessor:
         self.UPLOAD_DIR.mkdir(exist_ok=True)
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.websocket = None
+        self.emotion_history = deque(maxlen=5)  # Store last 5 emotions for smoothing
 
     async def process_video(self, file: UploadFile, websocket: WebSocket):
         self.websocket = websocket
         temp_input = self.UPLOAD_DIR / f"input_{file.filename}"
         temp_output = self.UPLOAD_DIR / f"processed_{Path(file.filename).stem}.mp4"
         
-        # Save the uploaded file to a temporary location
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_file:
             shutil.copyfileobj(file.file, temp_file)
             temp_input = Path(temp_file.name)
         
         try:
             await self._process_video_file(str(temp_input), str(temp_output))
-            os.remove(temp_input)  # Clean up input video after processing
-            
-            # Return the processed video path for download
-            return str(temp_output)  
+            os.remove(temp_input)
+            return str(temp_output)
         except Exception as e:
+            logger.error(f"Error processing video: {e}")
             if temp_input.exists(): 
                 os.remove(temp_input)
             if temp_output.exists():
@@ -42,6 +46,9 @@ class VideoProcessor:
     async def _process_video_file(self, input_path: str, output_path: str):
         cap = cv2.VideoCapture(input_path)
         
+        if not cap.isOpened():
+            raise ValueError("Error opening video file")
+
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -55,7 +62,7 @@ class VideoProcessor:
             ret, frame = cap.read()
             if not ret:
                 break
-                
+            
             frame_count += 1
             processed_frame = self._process_frame(frame)
             out.write(processed_frame)
@@ -67,17 +74,29 @@ class VideoProcessor:
 
     def _process_frame(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = self.face_cascade.detectMultiScale(gray, 1.1, 4)
-        
+        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
             
             face_roi = frame[y:y+h, x:x+w]
-            result = DeepFace.analyze(face_roi, actions=['emotion'], enforce_detection=False)
-            emotion = result[0]["dominant_emotion"]
-            
-            cv2.putText(frame, emotion, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 
-                       0.9, (36,255,12), 2)
+            try:
+                result = DeepFace.analyze(face_roi, actions=['emotion'], enforce_detection=False)
+                emotion = result[0]["dominant_emotion"] if isinstance(result, list) else result["dominant_emotion"]
+                
+                self.emotion_history.append(emotion)
+                smoothed_emotion = max(set(self.emotion_history), key=self.emotion_history.count)
+                
+                # Adjust text position to ensure it's always visible
+                text_y = max(y - 10, 20)  # Ensure text is at least 20 pixels from top
+                cv2.putText(frame, smoothed_emotion, (x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+                
+                # Add a background rectangle for better text visibility
+                (text_width, text_height), _ = cv2.getTextSize(smoothed_emotion, cv2.FONT_HERSHEY_SIMPLEX, 0.9, 2)
+                cv2.rectangle(frame, (x, text_y - text_height - 5), (x + text_width, text_y + 5), (0, 0, 0), -1)
+                cv2.putText(frame, smoothed_emotion, (x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36,255,12), 2)
+            except Exception as e:
+                logger.error(f"DeepFace analysis error: {e}")
         
         return frame
 
