@@ -18,9 +18,37 @@ class VideoProcessor:
     def __init__(self):
         self.UPLOAD_DIR = Path("temp_videos")
         self.UPLOAD_DIR.mkdir(exist_ok=True)
-        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        
+        # Use absolute paths
+        current_dir = Path(__file__).parent.resolve()
+        model_dir = current_dir / "models"
+        prototxt_path = model_dir / "deploy.prototxt"
+        model_path = model_dir / "res10_300x300_ssd_iter_140000.caffemodel"
+        
+        # Initialize the face detector (OpenCV DNN model)
+        if not prototxt_path.exists():
+            raise FileNotFoundError(f"Prototxt file not found at {prototxt_path}")
+        if not model_path.exists():
+            raise FileNotFoundError(f"Model file not found at {model_path}")
+        
+        try:
+            self.face_detector = cv2.dnn.readNetFromCaffe(
+                str(prototxt_path),
+                str(model_path)
+            )
+        except cv2.error as e:
+            logger.error(f"Error loading face detector model: {e}")
+            raise
+        
+        # Initialize Haar Cascade for face detection
+        cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        self.face_cascade = cv2.CascadeClassifier(cascade_path)
+        if self.face_cascade.empty():
+            raise FileNotFoundError(f"Haar Cascade XML file not found at {cascade_path}")
+        
         self.websocket = None
-        self.emotion_history = deque(maxlen=5)  # Store last 5 emotions for smoothing
+        self.emotion_history = deque(maxlen=10)
+        self.tracking_started = False
 
     async def process_video(self, file: UploadFile, websocket: WebSocket):
         self.websocket = websocket
@@ -58,19 +86,20 @@ class VideoProcessor:
         out = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
         
         frame_count = 0
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
-            
-            frame_count += 1
-            processed_frame = self._process_frame(frame)
-            out.write(processed_frame)
-            
-            await self._update_progress(frame_count, total_frames)
-        
-        cap.release()
-        out.release()
+        try:
+            while cap.isOpened():
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                frame_count += 1
+                processed_frame = self._process_frame(frame)
+                out.write(processed_frame)
+                
+                await self._update_progress(frame_count, total_frames)
+        finally:
+            cap.release()
+            out.release()
 
     def _process_frame(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
