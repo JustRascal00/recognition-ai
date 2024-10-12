@@ -24,10 +24,13 @@ app.add_middleware(
 
 def map_emotion(emotion):
     mapping = {
-        "happy": "smile",
+        "happy": "happy",
         "neutral": "neutral emotion",
         "angry": "angry",
         "surprise": "shocked",
+        "sad": "sad",
+        "fear": "fearful",
+        "disgust": "disgusted",
     }
     return mapping.get(emotion, "unknown emotion")
 
