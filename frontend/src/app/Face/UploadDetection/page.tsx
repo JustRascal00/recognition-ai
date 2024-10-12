@@ -1,76 +1,170 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import axios from 'axios';
+import { Upload, Camera, AlertCircle, RefreshCw } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const UploadDetection = () => {
     const [file, setFile] = useState<File | null>(null);
     const [emotion, setEmotion] = useState<string>("");
     const [isUploading, setIsUploading] = useState(false);
+    const [error, setError] = useState<string>("");
+    const [previewUrl, setPreviewUrl] = useState<string>("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setFile(e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+            const selectedFile = e.target.files[0];
+            setFile(selectedFile);
+            setError("");
+            setEmotion("");
+            
+            // Create preview URL
+            const url = URL.createObjectURL(selectedFile);
+            setPreviewUrl(url);
         }
     };
 
     const handleUpload = async () => {
-        if (file) {
-            setIsUploading(true);
-            const formData = new FormData();
-            formData.append("file", file);
+        if (!file) {
+            setError('Please select an image file first');
+            return;
+        }
 
-            try {
-                const response = await axios.post("http://localhost:8000/recognize/", formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+        setIsUploading(true);
+        setError("");
+        
+        const formData = new FormData();
+        formData.append("file", file);
 
-                setEmotion(response.data.emotion);
-            } catch (error) {
-                console.error("Error uploading the file", error);
-            } finally {
-                setIsUploading(false);
-            }
-        } else {
-            console.error("No file selected.");
+        try {
+            const response = await axios.post("http://localhost:8000/recognize/", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            setEmotion(response.data.emotion);
+        } catch (error) {
+            setError('Error processing the image. Please try again.');
+            console.error("Error uploading the file", error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const resetForm = () => {
+        setFile(null);
+        setPreviewUrl("");
+        setEmotion("");
+        setError("");
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
         }
     };
 
     return (
-        <div className="min-h-screen bg-zinc-900 text-zinc-100 p-4">
-            <div className="max-w-3xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8 text-center">Emotion Detection (Upload)</h1>
-
-                <div className="bg-black p-6 rounded-lg shadow-lg">
-                    <input 
-                        type="file" 
-                        onChange={handleFileChange} 
-                        className="w-full mb-4 p-2 bg-zinc-800 rounded border border-zinc-700 text-zinc-100"
-                    />
-                    <button 
-                        onClick={handleUpload} 
-                        className="w-full bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out disabled:bg-zinc-500 disabled:cursor-not-allowed"
-                        disabled={isUploading || !file}
-                    >
-                        {isUploading ? (
-                            <div className="flex justify-center items-center">
-                                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-zinc-100 mr-2"></div>
-                                Uploading...
-                            </div>
-                        ) : (
-                            'Upload & Detect Emotion'
-                        )}
-                    </button>
-
-                    {emotion && (
-                        <div className="mt-6 p-4 bg-zinc-800 rounded-lg">
-                            <h2 className="text-xl font-semibold mb-2">Detected Emotion:</h2>
-                            <p className="text-2xl font-bold text-green-400">{emotion}</p>
-                        </div>
-                    )}
+        <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-black text-zinc-100 p-6">
+            <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-violet-400 text-transparent bg-clip-text">
+                        Emotion Detection
+                    </h1>
+                    <p className="text-zinc-400">Upload an image to detect and analyze emotions</p>
                 </div>
+
+                <Card className="bg-zinc-900/50 border-zinc-800">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-semibold">Upload Image</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-6">
+                            <div className="relative">
+                                <input 
+                                    ref={fileInputRef}
+                                    type="file" 
+                                    onChange={handleFileChange} 
+                                    className="hidden"
+                                    accept="image/*"
+                                    id="image-upload"
+                                />
+                                <label 
+                                    htmlFor="image-upload"
+                                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-700 rounded-lg hover:border-zinc-500 transition-colors cursor-pointer bg-zinc-800/50"
+                                >
+                                    <Upload className="w-8 h-8 mb-2 text-zinc-400" />
+                                    <span className="text-sm text-zinc-400">
+                                        {file ? file.name : 'Drop your image here or click to browse'}
+                                    </span>
+                                </label>
+                            </div>
+
+                            {previewUrl && (
+                                <div className="mt-4">
+                                    <h3 className="text-sm font-medium mb-2">Preview:</h3>
+                                    <div className="relative aspect-video">
+                                        <img 
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            className="rounded-lg object-contain w-full h-full"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex gap-3">
+                                <Button
+                                    onClick={handleUpload}
+                                    className="flex-1"
+                                    disabled={isUploading || !file}
+                                    variant="default"
+                                >
+                                    {isUploading ? (
+                                        <>
+                                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Camera className="w-4 h-4 mr-2" />
+                                            Detect Emotion
+                                        </>
+                                    )}
+                                </Button>
+                                <Button
+                                    onClick={resetForm}
+                                    variant="outline"
+                                    className="border-zinc-700 hover:bg-zinc-800"
+                                >
+                                    Reset
+                                </Button>
+                            </div>
+
+                            {error && (
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+
+                            {emotion && (
+                                <Card className="border-zinc-800 bg-zinc-800/50">
+                                    <CardContent className="pt-6">
+                                        <div className="text-center">
+                                            <h3 className="text-lg font-semibold mb-2">Detected Emotion</h3>
+                                            <p className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-violet-400 text-transparent bg-clip-text">
+                                                {emotion}
+                                            </p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );

@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 import json
 import tempfile
+import shutil
 
 class VideoProcessor:
     def __init__(self):
@@ -20,15 +21,17 @@ class VideoProcessor:
         temp_input = self.UPLOAD_DIR / f"input_{file.filename}"
         temp_output = self.UPLOAD_DIR / f"processed_{Path(file.filename).stem}.mp4"
         
+        # Save the uploaded file to a temporary location
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as temp_file:
-            temp_file.write(file.file.read())
+            shutil.copyfileobj(file.file, temp_file)
             temp_input = Path(temp_file.name)
         
         try:
             await self._process_video_file(str(temp_input), str(temp_output))
-            os.remove(temp_input)
+            os.remove(temp_input)  # Clean up input video after processing
             
-            return str(temp_output)  # Return the path as a string
+            # Return the processed video path for download
+            return str(temp_output)  
         except Exception as e:
             if temp_input.exists(): 
                 os.remove(temp_input)
