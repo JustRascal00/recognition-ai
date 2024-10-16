@@ -7,6 +7,7 @@ export default function YoutubeLiveDetection() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [emotion, setEmotion] = useState('')
   const [error, setError] = useState('')
+  const [image, setImage] = useState<string | null>(null)  // New state for the image
   const ws = useRef<WebSocket | null>(null)
 
   useEffect(() => {
@@ -20,9 +21,10 @@ export default function YoutubeLiveDetection() {
   const startProcessing = async () => {
     setIsProcessing(true)
     setError('')
+    setEmotion('')
+    setImage(null)  // Reset the image
 
     try {
-      // Establish WebSocket connection
       ws.current = new WebSocket('ws://localhost:8000/ws/youtube')
 
       ws.current.onopen = () => {
@@ -35,6 +37,9 @@ export default function YoutubeLiveDetection() {
         const data = JSON.parse(event.data)
         if (data.emotion) {
           setEmotion(data.emotion)
+        }
+        if (data.image) {
+          setImage(`data:image/jpeg;base64,${data.image}`)
         }
         if (data.error) {
           setError(data.error)
@@ -88,12 +93,20 @@ export default function YoutubeLiveDetection() {
           >
             {isProcessing ? 'Stop Processing' : 'Start Processing'}
           </button>
+
           {emotion && (
             <div className="text-center mt-4">
               <p className="text-lg font-semibold text-zinc-100">Detected Emotion:</p>
               <p className="text-xl text-green-400">{emotion}</p>
             </div>
           )}
+
+          {image && (
+            <div className="mt-4 text-center">
+              <img src={image} alt="Detected Frame" className="rounded-lg shadow-md" />
+            </div>
+          )}
+
           {error && <p className="text-red-500 text-center mt-4">{error}</p>}
         </div>
       </div>

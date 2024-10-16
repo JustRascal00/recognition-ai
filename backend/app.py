@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 import pafy
 import yt_dlp
+import base64
+
 
 load_dotenv()
 
@@ -116,21 +118,19 @@ async def youtube_websocket_endpoint(websocket: WebSocket):
             
             if data['action'] == 'start':
                 video_id = data['videoId']
-                # Check if the input is already a full URL or just the video ID
                 if 'youtube.com' in video_id or 'youtu.be' in video_id:
                     video_url = video_id
                 else:
                     video_url = f"https://www.youtube.com/watch?v={video_id}"
                 
                 try:
-                    print(f"Processing video: {video_url}")  # Debug print
+                    print(f"Processing video: {video_url}")
                     
                     ydl_opts = {'format': 'best[ext=mp4]'}
                     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                         info = ydl.extract_info(video_url, download=False)
                         video_url = info['url']
                     
-                    # Start capturing video
                     cap = cv2.VideoCapture(video_url)
                     
                     while cap.isOpened():
@@ -142,7 +142,16 @@ async def youtube_websocket_endpoint(websocket: WebSocket):
                         try:
                             result = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
                             emotion = result[0]["dominant_emotion"]
-                            await websocket.send_json({"emotion": emotion})
+                            
+                            # Encode the frame as a base64 string
+                            _, buffer = cv2.imencode('.jpg', frame)
+                            frame_base64 = base64.b64encode(buffer).decode('utf-8')
+                            
+                            # Send emotion and the image
+                            await websocket.send_json({
+                                "emotion": emotion,
+                                "image": frame_base64
+                            })
                         except Exception as e:
                             print(f"Error in emotion detection: {e}")
                         
@@ -157,7 +166,7 @@ async def youtube_websocket_endpoint(websocket: WebSocket):
                     cap.release()
                 except Exception as e:
                     error_message = f"Error processing video: {str(e)}"
-                    print(error_message)  # Debug print
+                    print(error_message)
                     await websocket.send_json({"error": error_message})
             
             elif data['action'] == 'stop':
@@ -165,7 +174,7 @@ async def youtube_websocket_endpoint(websocket: WebSocket):
     
     except Exception as e:
         error_message = f"WebSocket error: {str(e)}"
-        print(error_message)  # Debug print
+        print(error_message)
         await websocket.send_json({"error": error_message})
     finally:
         await websocket.close()
