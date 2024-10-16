@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Camera, Upload, Video, History } from 'lucide-react';
+import { Camera, Upload, Video, History, Youtube } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 export default function Home() {
@@ -23,13 +23,13 @@ export default function Home() {
       gradient: "from-green-500 to-teal-500"
     },
     
-    // {
-    //   title: "Detection History",
-    //   description: "View your previous detection results",
-    //   icon: <History className="w-6 h-6" />,
-    //   path: "/Face/History",
-    //   gradient: "from-pink-500 to-rose-500"
-    // }
+    {
+      title: "YouTube Live Detection",
+      description: "Detect emotions in YouTube live streams",
+      icon: <Youtube className="w-6 h-6" />,
+      path: "/Face/YoutubeLiveDetection",
+      gradient: "from-red-500 to-yellow-500"
+    },
   ];
 
   return (
