@@ -28,8 +28,8 @@
 ## Technologies Used
 
 - **Frontend**: React.js, Next.js
-- **Backend**: FastAPI
-- **Machine Learning**: DeepFace (or any ML model you are using)
+- **Backend**: FastAPI, Python
+- **Machine Learning**: DeepFace 
 - **YouTube API**: For live stream emotion detection
 - **Video Processing**: Custom pipeline for frame-by-frame analysis
 
