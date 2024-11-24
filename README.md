@@ -12,14 +12,18 @@
 
 ## Screenshots
 
-### Image Emotion Detection
-![Image Emotion Detection](./screenshots/Screenshot_1.png)
-
 ### Main Dashboard
-![Main Dashboard](./screenshots/Screenshot_2.png)
+![Main Dashboard]![Screenshot_2](https://github.com/user-attachments/assets/84633027-ee84-42f9-93b5-9fd6aa6a92c0)
+
+### Image Emotion Detection
+![Image Emotion Detection]![Screenshot_1](https://github.com/user-attachments/assets/3882e1e3-e18e-4cbb-b004-74389109d665)
 
 ### Video Emotion Processing
-![Video Emotion Processing](./screenshots/Screenshot_3.png)
+![Video Emotion Processing]![Screenshot_3](https://github.com/user-attachments/assets/a848eeb0-2931-404e-8799-b4c2ccd3ac54)
+
+### Detected Emotions in Video Frames
+**Real-time face detection with bounding boxes and emotion labels**
+![Video Emotion Detection with Faces] ![Screenshot_4](https://github.com/user-attachments/assets/28cca2c9-421e-4055-9b2d-d94e9d5bfd5c)
 
 ## Technologies Used
 
