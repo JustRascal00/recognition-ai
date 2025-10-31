@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import { getBackendWsUrl } from '@/lib/config'
 
 export default function YoutubeLiveDetection() {
   const [videoId, setVideoId] = useState('')
@@ -26,7 +27,7 @@ export default function YoutubeLiveDetection() {
     setImage(null)  // Reset the image
 
     try {
-      ws.current = new WebSocket('ws://localhost:8000/ws/youtube')
+      ws.current = new WebSocket(`${getBackendWsUrl()}/ws/youtube`)
 
       ws.current.onopen = () => {
         if (ws.current) {

@@ -5,6 +5,7 @@ import { Upload, Video, AlertCircle, Download, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { getBackendUrl, getBackendWsUrl } from '@/lib/config';
 
 export default function VideoProcessing() {
     const [file, setFile] = useState<File | null>(null);
@@ -17,7 +18,7 @@ export default function VideoProcessing() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        ws.current = new WebSocket('ws://localhost:8000/ws');
+        ws.current = new WebSocket(`${getBackendWsUrl()}/ws`);
         
         ws.current.onmessage = (event) => {
             try {
@@ -29,7 +30,7 @@ export default function VideoProcessing() {
                 if (event.data === "processing_complete") {
                     setIsProcessing(false);
                 } else {
-                    setProcessedVideoUrl(`http://localhost:8000${event.data}`);
+                    setProcessedVideoUrl(`${getBackendUrl()}${event.data}`);
                 }
             }
         };

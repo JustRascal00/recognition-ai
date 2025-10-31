@@ -7,6 +7,7 @@ import { Upload, Camera, AlertCircle, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { getBackendUrl } from '@/lib/config';
 
 const UploadDetection = () => {
     const [file, setFile] = useState<File | null>(null);
@@ -42,7 +43,7 @@ const UploadDetection = () => {
         formData.append("file", file);
 
         try {
-            const response = await axios.post("http://localhost:8000/recognize/", formData, {
+            const response = await axios.post(`${getBackendUrl()}/recognize/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

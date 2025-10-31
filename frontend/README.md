@@ -29,8 +29,24 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Environment Variables
+
+Create a `.env.local` file in the frontend directory with:
+
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+```
+
+For production deployment on Vercel, set the environment variable:
+- **Variable Name**: `NEXT_PUBLIC_BACKEND_URL`
+- **Value**: Your Render backend URL (e.g., `https://your-app.onrender.com`)
+
+The frontend will automatically use this URL for all API calls and WebSocket connections.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+**Important**: After deploying your backend to Render, update the `NEXT_PUBLIC_BACKEND_URL` environment variable in Vercel's dashboard to point to your Render backend URL.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
