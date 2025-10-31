@@ -29,9 +29,16 @@ if not YOUTUBE_API_KEY:
 
 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
 
+# Get allowed origins from environment or default to localhost
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+allowed_origins = [
+    "http://localhost:3000",
+    FRONTEND_URL,
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

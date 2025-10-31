@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -17,6 +18,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 )
 Card.displayName = "Card"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
@@ -30,6 +32,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
 )
 CardHeader.displayName = "CardHeader"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
 
 const CardTitle = React.forwardRef<HTMLParagraphElement, CardTitleProps>(
@@ -43,6 +46,7 @@ const CardTitle = React.forwardRef<HTMLParagraphElement, CardTitleProps>(
 )
 CardTitle.displayName = "CardTitle"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
 
 const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionProps>(
@@ -56,6 +60,7 @@ const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionPr
 )
 CardDescription.displayName = "CardDescription"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
@@ -65,6 +70,7 @@ const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
 )
 CardContent.displayName = "CardContent"
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(

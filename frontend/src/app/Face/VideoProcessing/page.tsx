@@ -25,7 +25,7 @@ export default function VideoProcessing() {
                 if (data.progress) {
                     setProgress(data.progress);
                 }
-            } catch (e) {
+            } catch {
                 if (event.data === "processing_complete") {
                     setIsProcessing(false);
                 } else {

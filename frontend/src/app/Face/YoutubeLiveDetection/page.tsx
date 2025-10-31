@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 
 export default function YoutubeLiveDetection() {
   const [videoId, setVideoId] = useState('')
@@ -102,8 +103,15 @@ export default function YoutubeLiveDetection() {
           )}
 
           {image && (
-            <div className="mt-4 text-center">
-              <img src={image} alt="Detected Frame" className="rounded-lg shadow-md" />
+            <div className="mt-4 text-center relative w-full h-auto">
+              <Image 
+                src={image} 
+                alt="Detected Frame" 
+                width={640}
+                height={360}
+                className="rounded-lg shadow-md"
+                unoptimized
+              />
             </div>
           )}
 
