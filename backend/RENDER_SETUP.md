@@ -37,7 +37,16 @@
 
 ## Troubleshooting
 
-- **Python Version Issues**: The `runtime.txt` file specifies Python 3.11.10. If Render uses a different version, you can set it in the dashboard under Advanced settings.
+- **Python Version Issues**: ⚠️ **CRITICAL**: Render may still use Python 3.13 by default even with `runtime.txt`. **You MUST manually set Python 3.11 in Render dashboard:**
+  1. Go to your Render service → Settings
+  2. Scroll to "Advanced Settings"
+  3. Find "Python Version" and set it to `3.11.10` or `3.11`
+  4. Save and redeploy
+  
+  The `runtime.txt` file is a backup, but Render dashboard setting takes precedence.
+
+- **Pandas Build Failures**: If you see pandas compilation errors, it means Python 3.13 is being used. Python 3.13 is too new and many packages don't have wheels yet. Use Python 3.11 or 3.12.
+
 - **Build Failures**: If build fails, check that all dependencies in `requirements.txt` are compatible
 - **NumPy Issues**: If numpy fails to build, ensure Python 3.11 or 3.12 is being used (not 3.13+)
 - OpenCV requires system libraries that Render should handle automatically
