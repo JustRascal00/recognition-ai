@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import axios from 'axios';
 import { Upload, Camera, AlertCircle, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -106,10 +107,12 @@ const UploadDetection = () => {
                                 <div className="mt-4">
                                     <h3 className="text-sm font-medium mb-2">Preview:</h3>
                                     <div className="relative aspect-video">
-                                        <img 
+                                        <Image 
                                             src={previewUrl}
                                             alt="Preview"
-                                            className="rounded-lg object-contain w-full h-full"
+                                            fill
+                                            className="rounded-lg object-contain"
+                                            unoptimized
                                         />
                                     </div>
                                 </div>
