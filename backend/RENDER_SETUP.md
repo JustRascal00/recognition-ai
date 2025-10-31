@@ -8,6 +8,7 @@
    - Select the repository: `JustRascal00/recognition-ai`
    - Choose **Root Directory**: `backend`
    - **Environment**: Python 3
+   - **Python Version**: Set to `3.11.10` (in Advanced settings or via `runtime.txt` - already created)
    - **Build Command**: `pip install -r requirements.txt`
    - **Start Command**: `uvicorn app:app --host 0.0.0.0 --port $PORT`
 
@@ -36,7 +37,9 @@
 
 ## Troubleshooting
 
-- If build fails, check that all dependencies in `requirements.txt` are compatible
+- **Python Version Issues**: The `runtime.txt` file specifies Python 3.11.10. If Render uses a different version, you can set it in the dashboard under Advanced settings.
+- **Build Failures**: If build fails, check that all dependencies in `requirements.txt` are compatible
+- **NumPy Issues**: If numpy fails to build, ensure Python 3.11 or 3.12 is being used (not 3.13+)
 - OpenCV requires system libraries that Render should handle automatically
 - For WebSocket issues, ensure you're on a paid plan that supports persistent connections
 
